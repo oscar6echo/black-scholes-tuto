@@ -13,6 +13,7 @@ events are possible (probability zero vs non-zero), but assign different numeric
 probabilities to those events.
 
 Concretely, in the BS setting:
+
 - $\mathbb{P}$ (the **physical** or real-world measure): the stock drifts at $\mu$
 - $\mathbb{Q}$ (the **risk-neutral** measure): the stock drifts at $r - q$
 
@@ -40,14 +41,27 @@ To price options, we want drift $r - q$ instead. Define the **market price of ri
 
 $$\lambda = \frac{\mu - (r-q)}{\sigma}$$
 
-Girsanov's theorem states that if we define:
+Girsanov's theorem states that the measure $\mathbb{Q}$ defined by the Radon-Nikodym derivative:
+
+$$\frac{d\mathbb{Q}}{d\mathbb{P}}\bigg|_T = \exp\!\left(-\lambda W_T^{\mathbb{P}} - \frac{1}{2}\lambda^2 T\right)$$
+
+has the following property: the process
 
 $$W_t^{\mathbb{Q}} = W_t^{\mathbb{P}} + \lambda t$$
 
-then $W_t^{\mathbb{Q}}$ is a standard Brownian motion under the new measure $\mathbb{Q}$,
-with Radon-Nikodym derivative:
+is a **standard Brownian motion under $\mathbb{Q}$**.
 
-$$\frac{d\mathbb{Q}}{d\mathbb{P}}\bigg|_T = \exp\!\left(-\lambda W_T^{\mathbb{P}} - \frac{1}{2}\lambda^2 T\right)$$
+::: info Integrated vs. differential form
+The equation $W_t^{\mathbb{Q}} = W_t^{\mathbb{P}} + \lambda t$ is the *integrated* form:
+at each time $t$, the new path equals the old path plus the deterministic drift $\lambda t$.
+Differentiating gives the equivalent *infinitesimal* form:
+
+$$dW^{\mathbb{Q}} = dW^{\mathbb{P}} + \lambda\,dt$$
+
+Inverting: $dW^{\mathbb{P}} = dW^{\mathbb{Q}} - \lambda\,dt$.
+The Radon-Nikodym derivative is what *defines* $\mathbb{Q}$; Girsanov's theorem is the
+guarantee that with this specific choice the shifted process is indeed a BM.
+:::
 
 Substituting $dW^{\mathbb{P}} = dW^{\mathbb{Q}} - \lambda\,dt$ into the stock dynamics:
 
