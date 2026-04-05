@@ -24,37 +24,36 @@ it is the cost of borrowing at $r$, unaffected by $q$.
 
 ## Terminal Distribution of $S_T$
 
-Apply Itô's lemma to $\ln S$. For a twice continuously differentiable function $f(S)$,
-the Taylor expansion to second order is:
+**Itô's lemma** (reminder from [Appendix A1](./A1-ito-lemma)):
+for any twice-differentiable $f(S)$,
 
-$$df = \frac{\partial f}{\partial S}\,dS + \frac{1}{2}\frac{\partial^2 f}{\partial S^2}(dS)^2 + \tfrac{1}{6}\frac{\partial^3 f}{\partial S^3}(dS)^3 + \cdots$$
+$$df = f'(S)\,dS + \tfrac{1}{2}f''(S)\,(dS)^2$$
 
-With $f = \ln S$, the GBM $dS = (r-q)S\,dt + \sigma S\,dW^{\mathbb{Q}}$ gives $(dS)^2 = \bigl[(r-q)S\,dt + \sigma S\,dW^{\mathbb{Q}}\bigr]^2$,
-which expands into three types of terms:
+**Apply to $f(S) = \ln S$**, with $f' = 1/S$ and $f'' = -1/S^2$:
 
-| Term | Order | Keep? |
-|---|---|---|
-| $\sigma^2 S^2\,(dW^{\mathbb{Q}})^2 = \sigma^2 S^2\,dt$ | $O(dt)$ | **yes** |
-| $(r-q)\sigma S^2\,dt\,dW^{\mathbb{Q}}$ | $O(dt^{3/2})$ | drop |
-| $(r-q)^2 S^2\,(dt)^2$ | $O(dt^2)$ | drop |
+$$d(\ln S) = \frac{1}{S}\,dS - \frac{1}{2S^2}\,(dS)^2$$
 
-Higher-order terms $(dS)^3, \ldots$ are $O(dt^{3/2})$ or smaller and also drop. So $(dS)^2 \approx \sigma^2 S^2\,dt$.
+**Substitute the GBM** $dS = (r-q)S\,dt + \sigma S\,dW^{\mathbb{Q}}$,
+using $(dS)^2 = \sigma^2 S^2\,dt$:
 
-Substituting $f' = 1/S$ and $f'' = -1/S^2$:
+$$d(\ln S)
+= \frac{(r-q)S\,dt + \sigma S\,dW^{\mathbb{Q}}}{S}
+  - \frac{\sigma^2 S^2\,dt}{2S^2}$$
 
-$$d(\ln S) = \frac{1}{S}\,dS - \frac{1}{2S^2}\cdot\sigma^2 S^2\,dt
-= \underbrace{(r-q)\,dt + \sigma\,dW^{\mathbb{Q}}}_{\text{from }dS/S}
-\underbrace{{}-\tfrac{1}{2}\sigma^2\,dt}_{\text{Itô correction}}$$
+$$= \underbrace{(r-q)\,dt + \sigma\,dW^{\mathbb{Q}}}_{\text{from }dS/S}
+  \underbrace{{}-\tfrac{1}{2}\sigma^2\,dt}_{\text{Itô correction}}$$
 
-$$d(\ln S) = \left(r - q - \tfrac{1}{2}\sigma^2\right)dt + \sigma\,dW^{\mathbb{Q}}$$
+$$= \left(r - q - \tfrac{1}{2}\sigma^2\right)dt + \sigma\,dW^{\mathbb{Q}}$$
 
-Integrating from $0$ to $T$:
+**Integrate from $0$ to $T$.**
+Since $W_T^{\mathbb{Q}} \sim \mathcal{N}(0, T)$, the log-return is Gaussian:
 
-$$\ln\frac{S_T}{S_0} \sim \mathcal{N}\!\left(\left(r - q - \tfrac{1}{2}\sigma^2\right)T,\;\sigma^2 T\right)$$
+$$\ln\frac{S_T}{S_0} \sim \mathcal{N}\!\left(\left(r-q-\tfrac{1}{2}\sigma^2\right)T,\;\sigma^2 T\right)$$
 
-Therefore $S_T$ is **lognormally distributed**. Its density under $\mathbb{Q}$ is:
+Therefore $S_T$ is **lognormally distributed** under $\mathbb{Q}$, with density:
 
-$$f_{\mathbb{Q}}(S_T) = \frac{1}{S_T\,\sigma\sqrt{2\pi T}}\exp\!\left(-\frac{\left(\ln(S_T/S_0) - (r-q-\tfrac{1}{2}\sigma^2)T\right)^2}{2\sigma^2 T}\right)$$
+$$f_{\mathbb{Q}}(S_T) = \frac{1}{S_T\,\sigma\sqrt{2\pi T}}
+  \exp\!\left(-\frac{1}{2}\left(\frac{\ln(S_T/S_0)-(r-q-\tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}\right)^{\!2}\right)$$
 
 Note the $-\tfrac{1}{2}\sigma^2$ correction: this is the **Itô term**, a direct consequence
 of the nonlinearity of the log. It is the same term that separates $d_1$ from $d_2$.
