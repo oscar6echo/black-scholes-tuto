@@ -211,10 +211,6 @@ $$d_1 = \frac{\ln(S/K) + (r - q + \tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}$$
 
 $$d_2 = d_1 - \sigma\sqrt{T}$$
 
-By put/call parity (see [Section 6](./06-putcall-parity)), the put price is:
-
-$$P = K\,e^{-rT} N(-d_2) - S\,e^{-qT} N(-d_1)$$
-
 ::: tip $d_1$ and $d_2$
 $d_2$ is the Itô-corrected log-moneyness normalised by $\sigma\sqrt{T}$ —
 it naturally appears from removing the drift in Step 3.
@@ -222,24 +218,24 @@ $d_1 = d_2 + \sigma\sqrt{T}$ comes from the extra $e^y$ factor in the first inte
 Their probabilistic interpretation will be explained in [Section 4](./04-pricing-intuition).
 :::
 
-## SymPy Verification
+## Key Identity
 
-The notebook [`01_sympy_verify.ipynb`](../notebooks/01_sympy_verify.ipynb)
-verifies the four results below. The first three are confirmed by exact symbolic
-simplification (`sp.simplify` returns 0); the PDE is verified numerically.
+$$\boxed{S\,e^{-qT}\,n(d_1) = K\,e^{-rT}\,n(d_2)}$$
 
-### Key Identity
-
-$$S\,e^{-qT}\,n(d_1) = K\,e^{-rT}\,n(d_2)$$
+This identity links the PDF evaluated at $d_1$ and $d_2$. It is used in every Greek
+derivation: when differentiating $C$ with respect to $S$, $\sigma$, etc., the terms
+$\partial d_1/\partial x$ and $\partial d_2/\partial x$ would naively leave a mess, but this
+identity makes them cancel exactly, yielding the compact closed forms below.
 
 **Proof:**  
-Start from $n(x) = e^{-x^2/2}/\sqrt{2\pi}$ and compute $d_1^2 - d_2^2$.
-Factor as $(d_1-d_2)(d_1+d_2)$, using $d_1 - d_2 = \sigma\sqrt{T}$:
+Start from $n(x) = e^{-x^2/2}/\sqrt{2\pi}$ and compute $d_1^2 - d_2^2 = (d_1-d_2)(d_1+d_2)$.  
+Using $d_1 - d_2 = \sigma\sqrt{T}$:
 
 $$d_1 + d_2 = \frac{2\ln(S/K) + 2(r-q)T}{\sigma\sqrt{T}}$$
 
+The $\sigma\sqrt{T}$ factors cancel:
+
 $$d_1^2 - d_2^2
-= \sigma\sqrt{T} \cdot \frac{2\ln(S/K) + 2(r-q)T}{\sigma\sqrt{T}}
 = 2\ln(S/K) + 2(r-q)T$$
 
 Therefore:
@@ -249,24 +245,89 @@ $$\frac{n(d_1)}{n(d_2)}
 = e^{-\ln(S/K)-(r-q)T}
 = \frac{K}{S}\,e^{-(r-q)T}$$
 
-Multiplying both sides by $S\,e^{-qT}$ gives the identity. It is used in every
-Greek derivation to cancel the cross-terms in $\partial d_1/\partial x$ vs $\partial d_2/\partial x$.
+Rearranging:
 
-### Greeks
+$$S\,n(d_1) = K\,e^{-(r-q)T}\,n(d_2)$$  
 
-All five Greeks are obtained from $C$ as exact symbolic derivatives in the notebook.
+Multiplying both sides by $e^{-qT}$:  
 
-| Greek | Definition | Closed-form |
+$$S\,e^{-qT}\,n(d_1) = K\,e^{-rT}\,n(d_2) \qquad\square$$
+
+## Greeks
+
+The Greeks measure the sensitivity of $C$ to each input. They are obtained by
+differentiating the BS formula. The key identity above ensures that the
+$n(d_1)\,\partial d_1/\partial x$ and $n(d_2)\,\partial d_2/\partial x$ cross-terms cancel
+in every case, leaving the compact forms in the table.
+
+| Greek | Definition | Closed-form (call) |
 |-------|-----------|-------------|
 | $\Delta$ | $\partial C/\partial S$ | $e^{-qT}\,N(d_1)$ |
 | $\Gamma$ | $\partial^2 C/\partial S^2$ | $\dfrac{e^{-qT}\,n(d_1)}{S\,\sigma\sqrt{T}}$ |
 | $\nu$ (Vega) | $\partial C/\partial \sigma$ | $S\,e^{-qT}\,n(d_1)\,\sqrt{T}$ |
+| Voma | $\partial \nu/\partial \sigma = \partial^2 C/\partial \sigma^2$ | $\nu\,\dfrac{d_1 d_2}{\sigma}$ |
 | $\Theta$ | $-\partial C/\partial T$ | $-\dfrac{S\,e^{-qT}\,n(d_1)\,\sigma}{2\sqrt{T}} - r\,K\,e^{-rT}\,N(d_2) + q\,S\,e^{-qT}\,N(d_1)$ |
 | $\rho$ | $\partial C/\partial r$ | $K\,T\,e^{-rT}\,N(d_2)$ |
 
-$\Theta$ is the **negative** of the time-to-maturity derivative (so it is negative for calls:
-value erodes as time passes). The key identity ensures that $\partial d_1$ and $\partial d_2$
-terms cancel in $\Delta$, $\Gamma$, and $\nu$, leaving the compact forms above.
+$\Theta$ is the **negative** of the time-to-maturity derivative (negative for calls:
+value erodes as time passes).
+
+**Voma derivation:**  
+Starting from $\nu = S\,e^{-qT}\,n(d_1)\,\sqrt{T}$,
+differentiate with respect to $\sigma$.  
+Using $n'(x) = -x\,n(x)$ and
+$\partial d_1/\partial\sigma = -d_2/\sigma$ (shown below):
+
+$$\frac{\partial \nu}{\partial \sigma}
+= S\,e^{-qT}\,\sqrt{T}\cdot n'(d_1)\cdot\frac{\partial d_1}{\partial\sigma}
+= S\,e^{-qT}\,\sqrt{T}\cdot(-d_1\,n(d_1))\cdot\left(-\frac{d_2}{\sigma}\right)
+= \nu\,\frac{d_1 d_2}{\sigma}$$
+
+To see that $\partial d_1/\partial\sigma = -d_2/\sigma$, write
+$d_1 = A/(\sigma\sqrt{T}) + \tfrac{1}{2}\sigma\sqrt{T}$ where $A = \ln(S/K)+(r-q)T$:
+
+$$\frac{\partial d_1}{\partial\sigma}
+= -\frac{A}{\sigma^2\sqrt{T}} + \frac{\sqrt{T}}{2}
+= -\frac{1}{\sigma}\left(\frac{A}{\sigma\sqrt{T}} - \frac{\sigma\sqrt{T}}{2}\right)
+= -\frac{d_2}{\sigma}$$
+
+## Put-Call Parity
+
+$$\boxed{C - P = S\,e^{-qT} - K\,e^{-rT}}$$
+
+**Why it must hold:**  
+At maturity, $(S_T - K)^+ - (K - S_T)^+ = S_T - K$ always
+(the long call minus short put exactly replicates the forward payoff regardless of $S_T$).
+Discounting under $\mathbb{Q}$:
+$C - P = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}[S_T - K] = e^{-rT}(S\,e^{(r-q)T} - K) = S\,e^{-qT} - K\,e^{-rT}$.
+This holds **without** ever using the formula — it is a pure no-arbitrage statement.
+
+**Algebraic proof from the formula:**  
+
+Expand $C - P$ directly:
+
+$$C - P
+= \bigl[S\,e^{-qT}N(d_1) - K\,e^{-rT}N(d_2)\bigr]
+- \bigl[K\,e^{-rT}N(-d_2) - S\,e^{-qT}N(-d_1)\bigr]$$
+
+Collect the $S$ and $K$ terms:
+
+$$= S\,e^{-qT}\bigl[N(d_1) + N(-d_1)\bigr]
+  - K\,e^{-rT}\bigl[N(d_2) + N(-d_2)\bigr]$$
+
+Since $N(x) + N(-x) = 1$ for any $x$ (the normal CDF is symmetric about 0):
+
+$$= S\,e^{-qT}\cdot 1 - K\,e^{-rT}\cdot 1
+= S\,e^{-qT} - K\,e^{-rT} \qquad \square$$
+
+The put price follows immediately:
+
+$$\boxed{P = K\,e^{-rT} N(-d_2) - S\,e^{-qT} N(-d_1)}$$
+
+## SymPy Verification
+
+The notebook [`01_sympy_verify.ipynb`](../notebooks/01_sympy_verify.ipynb)
+provides numerical confirmation of the results above.
 
 ### PDE Residual
 
@@ -278,12 +339,5 @@ $$\frac{\partial C}{\partial \tau}
 The notebook verifies this **numerically** using centred finite differences at the
 reference parameters ($S=100$, $K=100$, $T=1$, $r=5\%$, $q=2\%$, $\sigma=20\%$).
 The residual is $O(10^{-8})$, consistent with second-order truncation error.
-
-### Put-Call Parity
-
-$$C - P = S\,e^{-qT} - K\,e^{-rT}$$
-
-This follows from $N(x) + N(-x) = 1$ applied to each term. SymPy verifies it
-symbolically — the simplification returns exactly zero.
 
 **Next:** [Lognormal Distribution & Risk-Neutral Measure →](./03-lognormal)
