@@ -329,7 +329,7 @@ $$\boxed{P = K\,e^{-rT} N(-d_2) - S\,e^{-qT} N(-d_1)}$$
 The notebook [`01_sympy_verify.ipynb`](../notebooks/01_sympy_verify.ipynb)
 contains the symbolic verification that:
 + the Key Identity holds
-+ the value of $C$ is a solution to the BS PDE
++ the value of $C$ is a solution to the BS PDE - see PDE residual below
 + the Greeks formulae given above are correct
 + the Put-Call parity holds
 
@@ -340,5 +340,56 @@ for time-to-maturity $\tau = T$:
 
 $$\frac{\partial C}{\partial \tau}
 - \frac{1}{2}\sigma^2 S^2\,\Gamma - (r-q)S\,\Delta + rC =  0$$
+
+**LHS — computing $\partial C/\partial\tau$.**
+Apply the product rule to $C = S\,e^{-q\tau}N(d_1) - K\,e^{-r\tau}N(d_2)$:
+
+$$\frac{\partial C}{\partial\tau}
+= -q\,S\,e^{-q\tau}N(d_1) + S\,e^{-q\tau}\,n(d_1)\,\frac{\partial d_1}{\partial\tau}
+  + r\,K\,e^{-r\tau}N(d_2) - K\,e^{-r\tau}\,n(d_2)\,\frac{\partial d_2}{\partial\tau}$$
+
+The two PDF terms are handled in one step.
+Since $d_1 - d_2 = \sigma\sqrt{\tau}$, differentiating in $\tau$ gives:
+
+$$\frac{\partial d_1}{\partial\tau} - \frac{\partial d_2}{\partial\tau}
+= \frac{\sigma}{2\sqrt{\tau}}$$
+
+The key identity $S\,e^{-q\tau}n(d_1) = K\,e^{-r\tau}n(d_2)$ (call the common value $\Lambda$)
+then collapses both PDF terms at once:
+
+$$S\,e^{-q\tau}n(d_1)\,\frac{\partial d_1}{\partial\tau}
+- K\,e^{-r\tau}n(d_2)\,\frac{\partial d_2}{\partial\tau}
+= \Lambda\!\left(\frac{\partial d_1}{\partial\tau} - \frac{\partial d_2}{\partial\tau}\right)
+= S\,e^{-q\tau}n(d_1)\cdot\frac{\sigma}{2\sqrt{\tau}}$$
+
+So:
+
+$$\frac{\partial C}{\partial\tau}
+= \frac{\sigma}{2\sqrt{\tau}}\,S\,e^{-q\tau}n(d_1)
+  - q\,S\,e^{-q\tau}N(d_1)
+  + r\,K\,e^{-r\tau}N(d_2)$$
+
+**RHS — substituting $\Delta$ and $\Gamma$.**
+Using the compact forms $\Delta = e^{-q\tau}N(d_1)$ and
+$\Gamma = e^{-q\tau}n(d_1)/(S\sigma\sqrt{\tau})$:
+
+$$\tfrac{1}{2}\sigma^2 S^2\,\Gamma
+= \tfrac{1}{2}\sigma^2 S^2\cdot\frac{e^{-q\tau}n(d_1)}{S\sigma\sqrt{\tau}}
+= \frac{\sigma}{2\sqrt{\tau}}\,S\,e^{-q\tau}n(d_1)$$
+
+$$\tfrac{1}{2}\sigma^2 S^2\,\Gamma + (r-q)S\,\Delta - rC$$
+
+$$= \frac{\sigma}{2\sqrt{\tau}}\,S\,e^{-q\tau}n(d_1)
+  + (r-q)\,S\,e^{-q\tau}N(d_1)
+  - r\bigl[S\,e^{-q\tau}N(d_1) - K\,e^{-r\tau}N(d_2)\bigr]$$
+
+$$= \frac{\sigma}{2\sqrt{\tau}}\,S\,e^{-q\tau}n(d_1)
+  - q\,S\,e^{-q\tau}N(d_1)
+  + r\,K\,e^{-r\tau}N(d_2)$$
+
+This equals the LHS expression above, so the residual is zero. $\square$
+
+The notebook [`01b_sympy_derive.ipynb`](../notebooks/01b_sympy_derive.ipynb)
+verifies this symbolically with SymPy.
 
 **Next:** [Lognormal Distribution & Risk-Neutral Measure →](./03-lognormal)
