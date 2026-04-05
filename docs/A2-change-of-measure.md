@@ -41,11 +41,26 @@ To price options, we want drift $r - q$ instead. Define the **market price of ri
 
 $$\lambda = \frac{\mu - (r-q)}{\sigma}$$
 
-Girsanov's theorem states that the measure $\mathbb{Q}$ defined by the Radon-Nikodym derivative:
+**Where does the R-N derivative come from?**  
+We want to define $\mathbb{Q}$ so that $W_t^{\mathbb{Q}} := W_t^{\mathbb{P}} + \lambda t$
+is a standard BM — i.e. $W_T^{\mathbb{Q}} \sim \mathcal{N}(0,T)$ under $\mathbb{Q}$.
+Since $W_T^{\mathbb{Q}} = W_T^{\mathbb{P}} + \lambda T$, this requires
+$W_T^{\mathbb{P}} \sim \mathcal{N}(-\lambda T,\, T)$ under $\mathbb{Q}$.
 
-$$\frac{d\mathbb{Q}}{d\mathbb{P}}\bigg|_T = \exp\!\left(-\lambda W_T^{\mathbb{P}} - \frac{1}{2}\lambda^2 T\right)$$
+But under $\mathbb{P}$ we have $W_T^{\mathbb{P}} \sim \mathcal{N}(0, T)$.
+The R-N derivative is simply the ratio of the $\mathbb{Q}$-density to the $\mathbb{P}$-density of $W_T^{\mathbb{P}}$:
 
-has the following property: the process
+$$\frac{d\mathbb{Q}}{d\mathbb{P}}\bigg|_T
+= \frac{f_{\mathbb{Q}}(W_T^{\mathbb{P}})}{f_{\mathbb{P}}(W_T^{\mathbb{P}})}
+= \frac{\exp\!\bigl(-(W_T^{\mathbb{P}}+\lambda T)^2/2T\bigr)}
+       {\exp\!\bigl(-(W_T^{\mathbb{P}})^2/2T\bigr)}$$
+
+Expanding the numerator exponent and cancelling $-(W_T^{\mathbb{P}})^2/2T$:
+
+$$= \exp\!\left(-\lambda W_T^{\mathbb{P}} - \frac{1}{2}\lambda^2 T\right)$$
+
+Girsanov's theorem confirms that this density ratio is consistent across the whole path
+(not just at terminal time $T$), so the process
 
 $$W_t^{\mathbb{Q}} = W_t^{\mathbb{P}} + \lambda t$$
 
