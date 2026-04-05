@@ -33,57 +33,193 @@ likely events are under $\mathbb{Q}$ than under $\mathbb{P}$.
 
 ## Girsanov's Theorem: From $\mathbb{P}$ to $\mathbb{Q}$
 
+**Step 1 — Goal.**  
+
 Under $\mathbb{P}$, the stock has drift $\mu$:
 
 $$dS = \mu S\,dt + \sigma S\,dW^{\mathbb{P}}$$
 
-To price options, we want drift $r - q$ instead. Define the **market price of risk**:
+For option pricing we need drift $r-q$ instead. We look for an **equivalent** measure
+$\mathbb{Q}$ — one that agrees with $\mathbb{P}$ on which events are possible — under which
 
-$$\lambda = \frac{\mu - (r-q)}{\sigma}$$
+$$dS = (r-q)\,S\,dt + \sigma S\,dW^{\mathbb{Q}}$$
 
-**Where does the R-N derivative come from?**  
-We want to define $\mathbb{Q}$ so that $W_t^{\mathbb{Q}} := W_t^{\mathbb{P}} + \lambda t$
-is a standard BM — i.e. $W_T^{\mathbb{Q}} \sim \mathcal{N}(0,T)$ under $\mathbb{Q}$.
-Since $W_T^{\mathbb{Q}} = W_T^{\mathbb{P}} + \lambda T$, this requires
-$W_T^{\mathbb{P}} \sim \mathcal{N}(-\lambda T,\, T)$ under $\mathbb{Q}$.
+with $W^{\mathbb{Q}}$ a standard BM. The questions are: what must $W^{\mathbb{Q}}$ be,
+and which R-N derivative defines $\mathbb{Q}$?
 
-But under $\mathbb{P}$ we have $W_T^{\mathbb{P}} \sim \mathcal{N}(0, T)$.
-The R-N derivative is simply the ratio of the $\mathbb{Q}$-density to the $\mathbb{P}$-density of $W_T^{\mathbb{P}}$:
+---
 
-$$\frac{d\mathbb{Q}}{d\mathbb{P}}\bigg|_T
+**Step 2 — What must $W^{\mathbb{Q}}$ be?**  
+
+For both SDEs to describe the same stock $S$, we equate them:
+
+$$\mu S\,dt + \sigma S\,dW^{\mathbb{P}} = (r-q)S\,dt + \sigma S\,dW^{\mathbb{Q}}$$
+
+Dividing by $\sigma S$ and rearranging:
+
+$$dW^{\mathbb{Q}} = dW^{\mathbb{P}} + \lambda\,dt,
+\qquad \lambda := \frac{\mu-(r-q)}{\sigma}$$
+
+$\lambda$ is the **market price of risk**: the excess drift per unit of volatility.
+Integrating: $W_t^{\mathbb{Q}} = W_t^{\mathbb{P}} + \lambda t$.
+The task reduces to: find $\mathbb{Q}$ such that this shifted process is a standard BM.
+
+---
+
+**Step 3 — The R-N derivative.**  
+
+Under $\mathbb{Q}$ we want $W_T^{\mathbb{Q}} \sim \mathcal{N}(0,T)$.
+Since $W_T^{\mathbb{Q}} = W_T^{\mathbb{P}} + \lambda T$, this forces
+$W_T^{\mathbb{P}} \sim \mathcal{N}(-\lambda T, T)$ under $\mathbb{Q}$
+(whereas $W_T^{\mathbb{P}} \sim \mathcal{N}(0, T)$ under $\mathbb{P}$).
+The R-N derivative is the ratio of these two Gaussian densities:
+
+$$Z_T \;:=\; \frac{d\mathbb{Q}}{d\mathbb{P}}\bigg|_T
 = \frac{f_{\mathbb{Q}}(W_T^{\mathbb{P}})}{f_{\mathbb{P}}(W_T^{\mathbb{P}})}
 = \frac{\exp\!\bigl(-(W_T^{\mathbb{P}}+\lambda T)^2/2T\bigr)}
-       {\exp\!\bigl(-(W_T^{\mathbb{P}})^2/2T\bigr)}$$
+       {\exp\!\bigl(-\;(W_T^{\mathbb{P}})^2\;/2T\bigr)}$$
 
-Expanding the numerator exponent and cancelling $-(W_T^{\mathbb{P}})^2/2T$:
+Expanding the numerator and cancelling the common $-(W_T^{\mathbb{P}})^2/2T$:
 
-$$= \exp\!\left(-\lambda W_T^{\mathbb{P}} - \frac{1}{2}\lambda^2 T\right)$$
+$$Z_T = \exp\!\left(-\lambda W_T^{\mathbb{P}} - \tfrac{1}{2}\lambda^2 T\right)$$
 
-Girsanov's theorem confirms that this density ratio is consistent across the whole path
-(not just at terminal time $T$), so the process
+**Validity.** $Z_T > 0$ always (so $\mathbb{Q}\sim\mathbb{P}$, equivalent measures).
+For the normalisation $\mathbb{E}^{\mathbb{P}}[Z_T]=1$: using the moment generating function
+of $W_T^{\mathbb{P}}\sim\mathcal{N}(0,T)$,
 
-$$W_t^{\mathbb{Q}} = W_t^{\mathbb{P}} + \lambda t$$
+$$\mathbb{E}^{\mathbb{P}}\!\left[e^{-\lambda W_T^{\mathbb{P}}}\right]
+= e^{\lambda^2 T/2}$$
 
-is a **standard Brownian motion under $\mathbb{Q}$**.
+which exactly cancels $e^{-\lambda^2 T/2}$, giving $\mathbb{E}^{\mathbb{P}}[Z_T]=1$. ✓
 
-::: info Integrated vs. differential form
-The equation $W_t^{\mathbb{Q}} = W_t^{\mathbb{P}} + \lambda t$ is the *integrated* form:
-at each time $t$, the new path equals the old path plus the deterministic drift $\lambda t$.
-Differentiating gives the equivalent *infinitesimal* form:
+---
 
-$$dW^{\mathbb{Q}} = dW^{\mathbb{P}} + \lambda\,dt$$
+**Step 4 — The density process $Z_t$ and its SDE.**  
 
-Inverting: $dW^{\mathbb{P}} = dW^{\mathbb{Q}} - \lambda\,dt$.
-The Radon-Nikodym derivative is what *defines* $\mathbb{Q}$; Girsanov's theorem is the
-guarantee that with this specific choice the shifted process is indeed a BM.
+$Z_T$ is defined at terminal time $T$. We extend it to a process on $[0,T]$
+by taking the conditional expectation:
+
+$$Z_t \;:=\; \mathbb{E}^{\mathbb{P}}\!\left[Z_T\,\big|\,\mathcal{F}_t\right]
+= \exp\!\left(-\lambda W_t^{\mathbb{P}} - \tfrac{1}{2}\lambda^2 t\right)$$
+
+(The future increment $W_T^{\mathbb{P}}-W_t^{\mathbb{P}}$ is $\mathcal{F}_t$-independent with
+zero mean, so it contributes only a constant that cancels.)
+By construction $Z_t$ is a $\mathbb{P}$-martingale with $Z_0 = 1$.
+
+**Applying Itô's lemma** to $Z_t = f(W_t^{\mathbb{P}}, t)$ where
+$f(w,t) = e^{-\lambda w - \lambda^2 t/2}$.
+
+Compute the three partial derivatives:
+
+$$\frac{\partial f}{\partial t} = -\frac{\lambda^2}{2}\,f, \qquad
+\frac{\partial f}{\partial w} = -\lambda\, f, \qquad
+\frac{\partial^2 f}{\partial w^2} = \lambda^2\, f$$
+
+Itô's formula $df = \tfrac{\partial f}{\partial t}\,dt
++ \tfrac{\partial f}{\partial w}\,dW^{\mathbb{P}}
++ \tfrac{1}{2}\tfrac{\partial^2 f}{\partial w^2}\,(dW^{\mathbb{P}})^2$,
+using $(dW^{\mathbb{P}})^2 = dt$:
+
+$$dZ_t = -\frac{\lambda^2}{2}Z_t\,dt - \lambda Z_t\,dW_t^{\mathbb{P}}
+        + \frac{1}{2}\lambda^2 Z_t\,dt$$
+
+The two $dt$ terms ($-\tfrac{\lambda^2}{2}$ and $+\tfrac{\lambda^2}{2}$) cancel:
+
+$$\boxed{dZ_t = -\lambda Z_t\,dW_t^{\mathbb{P}}}$$
+
+$Z_t$ is a pure stochastic integral — no $dt$ term — confirming it is a
+$\mathbb{P}$-local martingale.
+
+---
+
+**Step 5 — $W^{\mathbb{Q}}$ is a BM under $\mathbb{Q}$.**  
+
+We invoke **Lévy's characterisation**:
+
+> A continuous process $M_t$ with $M_0 = 0$ is a standard BM under $\mathbb{Q}$
+> if and only if (i) $M_t$ is a $\mathbb{Q}$-local martingale,
+> and (ii) its quadratic variation satisfies $[M]_t = t$.
+
+**Condition (ii) — quadratic variation.**
+Since $dW_t^{\mathbb{Q}} = dW_t^{\mathbb{P}} + \lambda\,dt$, the Itô rule
+$(dt)^2 = dt\cdot dW^{\mathbb{P}} = 0$ gives:
+
+$$(dW_t^{\mathbb{Q}})^2 = (dW_t^{\mathbb{P}} + \lambda\,dt)^2
+= (dW_t^{\mathbb{P}})^2 = dt$$
+
+So $[W^{\mathbb{Q}}]_t = t$. ✓
+
+**Condition (i) — $\mathbb{Q}$-local martingale.**
+
+We use the following consequence of the R-N definition of $\mathbb{Q}$:
+
+> **Change-of-measure rule.** $M_t$ is a $\mathbb{Q}$-local martingale if and only if
+> the product $Z_t M_t$ is a $\mathbb{P}$-local martingale.
+
+*(This follows directly from $\mathbb{E}^{\mathbb{Q}}[M_t\mid\mathcal{F}_s]
+= \mathbb{E}^{\mathbb{P}}[Z_t M_t\mid\mathcal{F}_s]/Z_s$:
+if $Z_t M_t$ is a $\mathbb{P}$-martingale the right-hand side equals $Z_s M_s/Z_s = M_s$.)*
+
+We therefore compute $d(Z_t W_t^{\mathbb{Q}})$ using the **Itô product rule**
+$d(XY) = X\,dY + Y\,dX + d[X,Y]$, with $X = Z_t$ and $Y = W_t^{\mathbb{Q}}$:
+
+- $dZ_t = -\lambda Z_t\,dW_t^{\mathbb{P}}$ (from Step 4)
+- $dW_t^{\mathbb{Q}} = dW_t^{\mathbb{P}} + \lambda\,dt$ (from Step 2)
+- Cross-variation: $d[Z, W^{\mathbb{Q}}]_t = dZ_t \cdot dW_t^{\mathbb{Q}}$
+
+For the cross-variation, only $dW^{\mathbb{P}}\cdot dW^{\mathbb{P}} = dt$ survives
+(all other products are $o(dt)$):
+
+$$d[Z, W^{\mathbb{Q}}]_t
+= (-\lambda Z_t\,dW_t^{\mathbb{P}})\cdot(dW_t^{\mathbb{P}} + \lambda\,dt)
+= -\lambda Z_t\,dt$$
+
+Assembling the three terms:
+
+$$d(Z_t W_t^{\mathbb{Q}})
+= \underbrace{Z_t\,(dW_t^{\mathbb{P}} + \lambda\,dt)}_{Z_t\,dW_t^{\mathbb{Q}}}
++ \underbrace{W_t^{\mathbb{Q}}\,(-\lambda Z_t\,dW_t^{\mathbb{P}})}_{W_t^{\mathbb{Q}}\,dZ_t}
++ \underbrace{(-\lambda Z_t\,dt)}_{d[Z, W^{\mathbb{Q}}]_t}$$
+
+Expanding and collecting the $dt$ terms:
+
+$$= Z_t\,dW_t^{\mathbb{P}} + \lambda Z_t\,dt
+  - \lambda W_t^{\mathbb{Q}} Z_t\,dW_t^{\mathbb{P}} - \lambda Z_t\,dt$$
+
+The $+\lambda Z_t\,dt$ and $-\lambda Z_t\,dt$ cancel:
+
+$$d(Z_t W_t^{\mathbb{Q}}) = Z_t\bigl(1 - \lambda W_t^{\mathbb{Q}}\bigr)\,dW_t^{\mathbb{P}}$$
+
+No $dt$ term: $Z_t W_t^{\mathbb{Q}}$ is a $\mathbb{P}$-local martingale.
+By the change-of-measure rule, $W_t^{\mathbb{Q}}$ is a $\mathbb{Q}$-local martingale. ✓
+
+Both conditions of Lévy's criterion are satisfied:
+$W^{\mathbb{Q}}$ is a **standard BM under $\mathbb{Q}$**.
+
+::: tip Note on the exponential form
+The $dt$-cancellation in Step 4 ($dZ_t$ has no $dt$ term) and in the product computation
+above are both consequences of the same structure: $Z_t$ is the **Doléans-Dade exponential**
+of $-\lambda W^{\mathbb{P}}$, the unique solution to $dZ = -\lambda Z\,dW^{\mathbb{P}}$.
+Any other form of $Z$ would leave a residual $dt$ term and fail to make $Z_t W_t^{\mathbb{Q}}$
+a martingale.
 :::
 
-Substituting $dW^{\mathbb{P}} = dW^{\mathbb{Q}} - \lambda\,dt$ into the stock dynamics:
+---
 
-$$dS = (r - q)\,S\,dt + \sigma S\,dW^{\mathbb{Q}}$$
+**Step 6 — New stock dynamics.**  
 
-Under $\mathbb{Q}$, the drift has changed from $\mu$ to $r-q$, and $\lambda$ has disappeared.
-This is why option prices do not depend on $\mu$.
+Invert the relation from Step 2: $dW_t^{\mathbb{P}} = dW_t^{\mathbb{Q}} - \lambda\,dt$.
+Substitute into the $\mathbb{P}$-SDE:
+
+$$dS = \mu S\,dt + \sigma S\,(dW_t^{\mathbb{Q}} - \lambda\,dt)
+= (\mu - \sigma\lambda)\,S\,dt + \sigma S\,dW_t^{\mathbb{Q}}$$
+
+Using $\mu - \sigma\lambda = \mu - (\mu - (r-q)) = r-q$:
+
+$$dS = (r-q)\,S\,dt + \sigma S\,dW^{\mathbb{Q}}$$
+
+Under $\mathbb{Q}$ the drift is $r-q$, and $\lambda$ — which depended on the unobservable
+real-world drift $\mu$ — has vanished. This is why **option prices do not depend on $\mu$**.
 
 ## The Risk-Neutral Pricing Formula
 
