@@ -327,17 +327,18 @@ $$\boxed{P = K\,e^{-rT} N(-d_2) - S\,e^{-qT} N(-d_1)}$$
 ## SymPy Verification
 
 The notebook [`01_sympy_verify.ipynb`](../notebooks/01_sympy_verify.ipynb)
-provides numerical confirmation of the results above.
+contains the symbolic verification that:
++ the Key Identity holds
++ the value of $C$ is a solution to the BS PDE
++ the Greeks formulae given above are correct
++ the Put-Call parity holds
 
 ### PDE Residual
 
-The BS PDE written in time-to-maturity $\tau = T$ reads:
+To show that $C$ is a solution of the BS PDE, show that:
+for time-to-maturity $\tau = T$:
 
 $$\frac{\partial C}{\partial \tau}
-= \frac{1}{2}\sigma^2 S^2\,\Gamma + (r-q)S\,\Delta - rC$$
-
-The notebook verifies this **numerically** using centred finite differences at the
-reference parameters ($S=100$, $K=100$, $T=1$, $r=5\%$, $q=2\%$, $\sigma=20\%$).
-The residual is $O(10^{-8})$, consistent with second-order truncation error.
+- \frac{1}{2}\sigma^2 S^2\,\Gamma - (r-q)S\,\Delta + rC =  0$$
 
 **Next:** [Lognormal Distribution & Risk-Neutral Measure →](./03-lognormal)
