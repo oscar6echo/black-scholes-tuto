@@ -69,8 +69,43 @@ Writing this out as an integral:
 
 $$C = e^{-rT} \int_K^{\infty} (S_T - K)\, f_{\mathbb{Q}}(S_T)\, dS_T$$
 
-This integral is evaluated by the same "complete the square" algebra as in [Section 2](./02-pde-solution),
-and yields the BS formula. This is the probabilistic route to the same destination.
+**Evaluating the integral:**  
+Change variable $y = \ln(S_T / S_0)$, so $S_T = S_0 e^y$ and the lower limit $K$ becomes
+$y_0 = \ln(K/S_0)$. The integral splits into two terms:
+
+$$I_1 = e^{-rT} S_0 \int_{y_0}^{\infty}
+  e^y \cdot \frac{e^{-(y - \mu T)^2/(2\sigma^2 T)}}{\sigma\sqrt{2\pi T}}\,dy$$
+
+$$I_2 = e^{-rT} K \int_{y_0}^{\infty}
+  \frac{e^{-(y - \mu T)^2/(2\sigma^2 T)}}{\sigma\sqrt{2\pi T}}\,dy$$
+
+where $\mu = r - q - \tfrac{1}{2}\sigma^2$.
+These are **structurally identical** to $I_1$ and $I_2$ in [Section 2](./02-pde-solution).
+$I_2$ is a Gaussian tail integral that gives $K\,e^{-rT}N(d_2)$ directly.
+$I_1$ carries the extra $e^y$ factor: combining it with the Gaussian exponent gives
+$y - (y - \mu T)^2/(2\sigma^2 T)$, and "completing the square" in $y$ means
+rewriting this as a perfect square plus a constant — the constant yields the prefactor
+$S_0 e^{(r-q)T}$, the shifted Gaussian gives $N(d_1)$, and the shift of $\sigma^2 T$
+in the mean is exactly what separates $d_1$ from $d_2$.
+
+**Same algebra, different framing:**  
+The probabilistic route does not require a different calculation.
+Once the expectation is written as an integral, the evaluation is identical to the
+heat-equation convolution of Section 2.
+What differs is the starting point — a PDE versus a risk-neutral expectation —
+and the conceptual language: the PDE approach produces $d_1$, $d_2$ as artefacts of
+change-of-variables, while the probabilistic approach reveals them as probabilities of
+finishing in-the-money under two different measures (see next section).
+
+::: info Historical order
+Black and Scholes (1973) derived the formula via the PDE route — reducing it to the
+heat equation and inverting. The risk-neutral pricing framework came slightly later:
+Cox and Ross (1976) introduced the principle explicitly, and Harrison, Kreps, and
+Pliska (1979–1981) provided the rigorous martingale foundations.
+Today the probabilistic approach is considered more fundamental because it generalises
+to models where no closed-form PDE solution exists — but for lognormal dynamics the
+two routes are computationally equivalent.
+:::
 
 ## What $d_1$ and $d_2$ Mean
 
