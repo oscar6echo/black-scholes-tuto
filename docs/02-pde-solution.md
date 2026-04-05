@@ -114,16 +114,19 @@ $$I_2 = K\int_0^{\infty}
 
 so that $u(\tilde{x},\tau) = I_1 - I_2$.
 
-::: info The standard normal CDF $N(\cdot)$
+::: info The standard normal CDF $N(\cdot)$ and PDF $n(\cdot)$
 $N(x)$ is the cumulative distribution function of the standard normal distribution:
 
 $$N(x) = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}}\,e^{-t^2/2}\,dt$$
 
-It is related to the error function by
+Its derivative is the standard normal PDF:
+
+$$n(x) = N'(x) = \frac{1}{\sqrt{2\pi}}\,e^{-x^2/2}$$
+
+$N$ is related to the error function by
 $N(x) = \tfrac{1}{2}\!\left[1 + \operatorname{erf}\!\left(\tfrac{x}{\sqrt{2}}\right)\right]$,
 but is **not** the same as $\operatorname{erf}$.
-The key identity used below is $\int_a^{\infty}\phi(t)\,dt = N(-a)$,
-where $\phi(t) = e^{-t^2/2}/\sqrt{2\pi}$.
+The key identity used below is $\int_a^{\infty} n(t)\,dt = N(-a)$.
 :::
 
 **Second integral $I_2$:**  
@@ -221,14 +224,66 @@ Their probabilistic interpretation will be explained in [Section 4](./04-pricing
 
 ## SymPy Verification
 
-The algebra above can be verified symbolically. The notebook
-[`01_sympy_verify.ipynb`](../notebooks/01_sympy_verify.ipynb) does the following:
+The notebook [`01_sympy_verify.ipynb`](../notebooks/01_sympy_verify.ipynb)
+verifies the four results below. The first three are confirmed by exact symbolic
+simplification (`sp.simplify` returns 0); the PDE is verified numerically.
 
-- Defines $C$ symbolically in SymPy
-- Computes $\partial C/\partial t$, $\partial C/\partial S$, $\partial^2 C/\partial S^2$
-- Substitutes into the BS PDE and verifies the residual simplifies to zero
-- Computes the Greeks $\Delta$, $\Gamma$, $\nu$, $\theta$, $\rho$ as exact symbolic derivatives
+### Key Identity
 
-This is the machine-proof companion to the derivation above.
+$$S\,e^{-qT}\,n(d_1) = K\,e^{-rT}\,n(d_2)$$
+
+**Proof:**  
+Start from $n(x) = e^{-x^2/2}/\sqrt{2\pi}$ and compute $d_1^2 - d_2^2$.
+Factor as $(d_1-d_2)(d_1+d_2)$, using $d_1 - d_2 = \sigma\sqrt{T}$:
+
+$$d_1 + d_2 = \frac{2\ln(S/K) + 2(r-q)T}{\sigma\sqrt{T}}$$
+
+$$d_1^2 - d_2^2
+= \sigma\sqrt{T} \cdot \frac{2\ln(S/K) + 2(r-q)T}{\sigma\sqrt{T}}
+= 2\ln(S/K) + 2(r-q)T$$
+
+Therefore:
+
+$$\frac{n(d_1)}{n(d_2)}
+= \exp\!\left(-\frac{d_1^2-d_2^2}{2}\right)
+= e^{-\ln(S/K)-(r-q)T}
+= \frac{K}{S}\,e^{-(r-q)T}$$
+
+Multiplying both sides by $S\,e^{-qT}$ gives the identity. It is used in every
+Greek derivation to cancel the cross-terms in $\partial d_1/\partial x$ vs $\partial d_2/\partial x$.
+
+### Greeks
+
+All five Greeks are obtained from $C$ as exact symbolic derivatives in the notebook.
+
+| Greek | Definition | Closed-form |
+|-------|-----------|-------------|
+| $\Delta$ | $\partial C/\partial S$ | $e^{-qT}\,N(d_1)$ |
+| $\Gamma$ | $\partial^2 C/\partial S^2$ | $\dfrac{e^{-qT}\,n(d_1)}{S\,\sigma\sqrt{T}}$ |
+| $\nu$ (Vega) | $\partial C/\partial \sigma$ | $S\,e^{-qT}\,n(d_1)\,\sqrt{T}$ |
+| $\Theta$ | $-\partial C/\partial T$ | $-\dfrac{S\,e^{-qT}\,n(d_1)\,\sigma}{2\sqrt{T}} - r\,K\,e^{-rT}\,N(d_2) + q\,S\,e^{-qT}\,N(d_1)$ |
+| $\rho$ | $\partial C/\partial r$ | $K\,T\,e^{-rT}\,N(d_2)$ |
+
+$\Theta$ is the **negative** of the time-to-maturity derivative (so it is negative for calls:
+value erodes as time passes). The key identity ensures that $\partial d_1$ and $\partial d_2$
+terms cancel in $\Delta$, $\Gamma$, and $\nu$, leaving the compact forms above.
+
+### PDE Residual
+
+The BS PDE written in time-to-maturity $\tau = T$ reads:
+
+$$\frac{\partial C}{\partial \tau}
+= \frac{1}{2}\sigma^2 S^2\,\Gamma + (r-q)S\,\Delta - rC$$
+
+The notebook verifies this **numerically** using centred finite differences at the
+reference parameters ($S=100$, $K=100$, $T=1$, $r=5\%$, $q=2\%$, $\sigma=20\%$).
+The residual is $O(10^{-8})$, consistent with second-order truncation error.
+
+### Put-Call Parity
+
+$$C - P = S\,e^{-qT} - K\,e^{-rT}$$
+
+This follows from $N(x) + N(-x) = 1$ applied to each term. SymPy verifies it
+symbolically — the simplification returns exactly zero.
 
 **Next:** [Lognormal Distribution & Risk-Neutral Measure →](./03-lognormal)
