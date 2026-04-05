@@ -7,32 +7,79 @@ to the call payoff boundary condition yields the BS formula.
 
 ## Step 1 — Log-space and time-to-maturity
 
-Introduce $x = \ln(S/K)$ and $\tau = T - t$.
+Introduce $x = \ln(S/K)$ and $\tau = T - t$, so $S = Ke^x$ and $t = T - \tau$.
 
-Under this change of variables, the multiplicative $S^2$ and $S$ coefficients in the
-PDE become constant coefficients. The domain $S \in (0, \infty)$ maps to $x \in (-\infty, \infty)$.
+The chain rule gives the partial derivatives:
 
-The call payoff becomes $V(x, 0) = K(\,e^x - 1)^+$.
+$$\frac{\partial V}{\partial t} = -\frac{\partial V}{\partial \tau}, \qquad
+\frac{\partial V}{\partial S} = \frac{1}{S}\frac{\partial V}{\partial x}, \qquad
+\frac{\partial^2 V}{\partial S^2} = \frac{1}{S^2}\left(\frac{\partial^2 V}{\partial x^2} - \frac{\partial V}{\partial x}\right)$$
+
+Substituting into the BS PDE:
+
+$$\frac{\partial V}{\partial t} + \frac{1}{2}\sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + (r-q)S\frac{\partial V}{\partial S} - rV = 0$$
+
+and cancelling powers of $S$:
+
+$$-\frac{\partial V}{\partial \tau} + \frac{1}{2}\sigma^2\frac{\partial^2 V}{\partial x^2}
+- \frac{1}{2}\sigma^2\frac{\partial V}{\partial x}
++ (r-q)\frac{\partial V}{\partial x} - rV = 0$$
+
+Rearranging (and writing $\alpha \equiv r - q - \tfrac{1}{2}\sigma^2$):
+
+$$\frac{\partial V}{\partial \tau} = \frac{1}{2}\sigma^2\frac{\partial^2 V}{\partial x^2}
++ \alpha\,\frac{\partial V}{\partial x} - rV$$
+
+The coefficients are now **constant** — the $S^2$ and $S$ factors are gone.
+The domain $S \in (0, \infty)$ maps to $x \in (-\infty, \infty)$,
+and the call payoff becomes $V(x, 0) = K(e^x - 1)^+$.
 
 ## Step 2 — Remove discounting
 
-Write $V = e^{-r\tau}\,u$. This substitutes out the $-rV$ term, giving a PDE for $u$
-without a zero-order term.
+Write $V = e^{-r\tau}\,u$. Then:
+
+$$\frac{\partial V}{\partial \tau} = -r\,e^{-r\tau}\,u + e^{-r\tau}\frac{\partial u}{\partial \tau}, \qquad
+\frac{\partial V}{\partial x} = e^{-r\tau}\frac{\partial u}{\partial x}, \qquad
+\frac{\partial^2 V}{\partial x^2} = e^{-r\tau}\frac{\partial^2 u}{\partial x^2}$$
+
+Substituting into the PDE from Step 1 and dividing through by $e^{-r\tau}$:
+
+$$\underbrace{-ru}_{\text{from }\partial_\tau V} + \frac{\partial u}{\partial \tau}
+= \frac{1}{2}\sigma^2\frac{\partial^2 u}{\partial x^2}
++ \alpha\,\frac{\partial u}{\partial x} \underbrace{- ru}_{\text{from }-rV}$$
+
+The $-ru$ terms cancel:
+
+$$\frac{\partial u}{\partial \tau} = \frac{1}{2}\sigma^2\frac{\partial^2 u}{\partial x^2}
++ \alpha\,\frac{\partial u}{\partial x}$$
+
+The zero-order term is gone.
 
 ## Step 3 — Remove the drift
 
-Write $\tilde{x} = x + (r - q - \tfrac{1}{2}\sigma^2)\tau$. This is a shift that
-centres the drift: after this substitution, the first-derivative term $\partial u / \partial \tilde{x}$
-vanishes.
+Write $\tilde{x} = x + \alpha\tau$ (with $\alpha = r - q - \tfrac{1}{2}\sigma^2$ as before), and let
+$u(x,\tau) = \tilde{u}(\tilde{x},\tau)$. Since $\tilde{x}$ depends on $\tau$ at fixed $x$
+(namely $\partial\tilde{x}/\partial\tau\big|_x = \alpha$), the chain rule gives:
 
-The quantity $r - q - \tfrac{1}{2}\sigma^2$ is precisely the **Itô-corrected log-drift**
+$$\frac{\partial u}{\partial \tau}\bigg|_x = \frac{\partial\tilde{u}}{\partial\tau}\bigg|_{\tilde{x}} + \alpha\,\frac{\partial\tilde{u}}{\partial\tilde{x}}, \qquad
+\frac{\partial u}{\partial x} = \frac{\partial\tilde{u}}{\partial\tilde{x}}, \qquad
+\frac{\partial^2 u}{\partial x^2} = \frac{\partial^2\tilde{u}}{\partial\tilde{x}^2}$$
+
+Substituting, the $\alpha\,\partial\tilde{u}/\partial\tilde{x}$ terms cancel on both sides:
+
+$$\frac{\partial\tilde{u}}{\partial\tau} + \alpha\,\frac{\partial\tilde{u}}{\partial\tilde{x}}
+= \frac{1}{2}\sigma^2\frac{\partial^2\tilde{u}}{\partial\tilde{x}^2} + \alpha\,\frac{\partial\tilde{u}}{\partial\tilde{x}}
+\quad\Longrightarrow\quad
+\frac{\partial\tilde{u}}{\partial\tau} = \frac{1}{2}\sigma^2\frac{\partial^2\tilde{u}}{\partial\tilde{x}^2}$$
+
+The quantity $\alpha = r - q - \tfrac{1}{2}\sigma^2$ is precisely the **Itô-corrected log-drift**
 of the stock price — the same term that appears in $d_2$.
 
 ## Result: the Heat Equation
 
-After all three substitutions, the BS PDE reduces to:
+After all three substitutions the BS PDE has reduced to:
 
-$$\frac{\partial u}{\partial \tau} = \frac{1}{2}\sigma^2 \frac{\partial^2 u}{\partial \tilde{x}^2}$$
+$$\frac{\partial \tilde{u}}{\partial \tau} = \frac{1}{2}\sigma^2 \frac{\partial^2 \tilde{u}}{\partial \tilde{x}^2}$$
 
 This is the classical heat equation (or diffusion equation) with diffusivity $\tfrac{1}{2}\sigma^2$.
 
@@ -48,24 +95,118 @@ $$u(\tilde{x}, \tau) = \int_{-\infty}^{\infty} u_0(y)\, G(\tilde{x} - y,\, \tau)
 
 ## Applying the Call Payoff
 
-The initial condition (at $\tau = 0$, i.e. at maturity) in the transformed coordinates is:
+The initial condition in the transformed coordinates (at $\tau = 0$, i.e. at maturity) is:
 
 $$u_0(\tilde{x}) = K\bigl(e^{\tilde{x}} - 1\bigr)^+$$
 
-The convolution integral splits at $\tilde{x} = 0$ (i.e. $S = K$):
+(At $\tau = 0$ the substitutions reduce to $u = V$ and $\tilde{x} = x$,
+so the call payoff $K(e^x-1)^+$ carries over directly.)
 
-$$u = \underbrace{\int_0^{\infty} K e^y\, G(\tilde{x}-y,\tau)\,dy}_{\text{first integral}} - \underbrace{\int_0^{\infty} K\, G(\tilde{x}-y,\tau)\,dy}_{\text{second integral}}$$
+Since $u_0(y) > 0$ only for $y > 0$, writing out $G$ explicitly and splitting the payoff:
 
-Each integral is evaluated by **completing the square** in the exponent.
-The first integral introduces a shift that generates $d_1$; the second generates $d_2$.
+$$I_1 = K\int_0^{\infty} e^y \cdot
+  \frac{1}{\sigma\sqrt{2\pi\tau}}
+  \exp\!\left(-\frac{(\tilde{x}-y)^2}{2\sigma^2\tau}\right)dy$$
+
+$$I_2 = K\int_0^{\infty}
+  \frac{1}{\sigma\sqrt{2\pi\tau}}
+  \exp\!\left(-\frac{(\tilde{x}-y)^2}{2\sigma^2\tau}\right)dy$$
+
+so that $u(\tilde{x},\tau) = I_1 - I_2$.
+
+::: info The standard normal CDF $N(\cdot)$
+$N(x)$ is the cumulative distribution function of the standard normal distribution:
+
+$$N(x) = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}}\,e^{-t^2/2}\,dt$$
+
+It is related to the error function by
+$N(x) = \tfrac{1}{2}\!\left[1 + \operatorname{erf}\!\left(\tfrac{x}{\sqrt{2}}\right)\right]$,
+but is **not** the same as $\operatorname{erf}$.
+The key identity used below is $\int_a^{\infty}\phi(t)\,dt = N(-a)$,
+where $\phi(t) = e^{-t^2/2}/\sqrt{2\pi}$.
+:::
+
+**Second integral $I_2$:**  
+Substitute $z = (y - \tilde{x})\,/\,(\sigma\sqrt{\tau})$, $dy = \sigma\sqrt{\tau}\,dz$.
+The lower limit $y=0$ becomes $z = -\tilde{x}/(\sigma\sqrt{\tau})$:
+
+$$I_2 = K\int_{-\tilde{x}/(\sigma\sqrt{\tau})}^{\infty}
+  \frac{1}{\sqrt{2\pi}}e^{-z^2/2}\,dz
+  = K\,N\!\left(\frac{\tilde{x}}{\sigma\sqrt{\tau}}\right)$$
+
+**First integral $I_1$:**  
+Write the combined exponent $f(y) = y - \tfrac{(\tilde{x}-y)^2}{2\sigma^2\tau}$.
+Expand and collect in $y$:
+
+$$f(y) = -\frac{1}{2\sigma^2\tau}
+  \Bigl[y^2 - 2(\tilde{x}+\sigma^2\tau)\,y + \tilde{x}^2\Bigr]$$
+
+Complete the square (writing $\mu_1 = \tilde{x}+\sigma^2\tau$):
+
+$$f(y) = -\frac{(y-\mu_1)^2}{2\sigma^2\tau}
+  + \frac{\mu_1^2 - \tilde{x}^2}{2\sigma^2\tau}$$
+
+Since $\mu_1^2 - \tilde{x}^2 = 2\tilde{x}\sigma^2\tau + \sigma^4\tau^2$, the constant term simplifies:
+
+$$\frac{\mu_1^2-\tilde{x}^2}{2\sigma^2\tau}
+  = \tilde{x} + \frac{\sigma^2\tau}{2}$$
+
+So:
+
+$$e^{f(y)} = e^{\,\tilde{x}+\sigma^2\tau/2}
+  \cdot\exp\!\left(-\frac{(y-\mu_1)^2}{2\sigma^2\tau}\right)$$
+
+The first factor is a constant in $y$ and factors out of the integral.
+The remaining Gaussian is centred at $\mu_1 = \tilde{x}+\sigma^2\tau$;
+the same substitution as in $I_2$ (but shifted by $\sigma^2\tau$) gives:
+
+$$I_1 = K\,e^{\tilde{x}+\sigma^2\tau/2}
+  \cdot N\!\left(\frac{\tilde{x}+\sigma^2\tau}{\sigma\sqrt{\tau}}\right)$$
+
+**Reversing the substitutions.** Recall the definitions from the three steps:
+
+$$\tilde{x} = x + \alpha\tau, \quad
+x = \ln(S/K), \quad
+\alpha = r-q-\tfrac{1}{2}\sigma^2, \quad
+\tau = T$$
+
+The $N(\cdot)$ argument of $I_2$:
+
+$$\frac{\tilde{x}}{\sigma\sqrt{\tau}}
+= \frac{\ln(S/K)+(r-q-\tfrac{1}{2}\sigma^2)\,T}{\sigma\sqrt{T}}
+= d_2$$
+
+The $N(\cdot)$ argument of $I_1$ (the $\sigma^2\tau$ shift adds $\sigma^2\sqrt{\tau}$ to the numerator):
+
+$$\frac{\tilde{x}+\sigma^2\tau}{\sigma\sqrt{\tau}}
+= \frac{\ln(S/K)+(r-q+\tfrac{1}{2}\sigma^2)\,T}{\sigma\sqrt{T}}
+= d_1$$
+
+This shift, generated by completing the square on the $e^y$ factor, is
+the sole difference between $d_1$ and $d_2$.
+
+The prefactor of $I_1$, using $\alpha + \tfrac{1}{2}\sigma^2 = r-q$:
+
+$$K\,e^{\tilde{x}+\sigma^2\tau/2}
+= K\,e^{\ln(S/K)+(r-q)T}
+= S\,e^{(r-q)T}$$
+
+So, before reversing Step 2 ($V = e^{-r\tau}u$):
+
+$$u = S\,e^{(r-q)T}N(d_1) - K\,N(d_2)$$
+
+Multiplying by $e^{-rT}$ (Step 2):
+
+$$C = e^{-rT}\cdot S\,e^{(r-q)T}\,N(d_1) - K\,e^{-rT}\,N(d_2)
+  = S\,e^{-qT}\,N(d_1) - K\,e^{-rT}\,N(d_2)$$
 
 ## The Black-Scholes Formula
 
-Reversing all three substitutions gives the famous result:
-
 $$\boxed{C = S\,e^{-qT} N(d_1) - K\,e^{-rT} N(d_2)}$$
 
-$$d_1 = \frac{\ln(S/K) + (r - q + \tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}, \qquad d_2 = d_1 - \sigma\sqrt{T}$$
+$$d_1 = \frac{\ln(S/K) + (r - q + \tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}$$
+
+$$d_2 = d_1 - \sigma\sqrt{T}$$
 
 By put/call parity (see [Section 6](./06-putcall-parity)), the put price is:
 
